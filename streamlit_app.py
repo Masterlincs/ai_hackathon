@@ -65,7 +65,7 @@ if api_key:
                     st.session_state.paper = paper
                     st.session_state.new_blurb = new_blurb
                     st.session_state.stage = 'display'
-                    st.experimental_rerun()
+                    st.rerun()
                 except Exception as e:
                     st.error(f"An error occurred: {str(e)}")
 
@@ -92,7 +92,7 @@ if api_key:
             similarity = compare_blurbs(st.session_state.paper.summary, st.session_state.new_blurb, api_key)
             st.session_state.ai_similarity = round((similarity[0] * 100), 3)
             st.session_state.stage = 'results'
-            st.experimental_rerun()
+            st.rerun()
 
     elif st.session_state.stage == 'results':
         st.subheader("Paper Details")
@@ -120,7 +120,7 @@ if api_key:
 
         if st.button("Process Another Paper"):
             st.session_state.stage = 'input'
-            st.experimental_rerun()
+            st.rerun()
 
 else:
     st.warning("Please enter your Hugging Face API key in the sidebar to proceed.")
