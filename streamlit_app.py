@@ -6,18 +6,18 @@ st.set_page_config(page_title="Research Paper Processing App", layout="wide")
 # Custom CSS
 st.markdown("""
     <style>
-    .main {
+  .main {
         padding: 2rem;
         border-radius: 0.5rem;
         background-color: #f0f2f6;
     }
-    .stTextInput > div > div > input {
+  .stTextInput > div > div > input {
         background-color: #ffffff;
     }
-    .stTextArea > div > div > textarea {
+  .stTextArea > div > div > textarea {
         background-color: #ffffff;
     }
-    .stButton > button {
+  .stButton > button {
         width: 100%;
         background-color: #4CAF50;
         color: white;
@@ -50,21 +50,36 @@ if api_key:
                 st.subheader("Paper Details")
                 st.write(f"Title: {paper.title}")
                 st.write(f"Authors: {', '.join(paper.authors)}")
-                st.write("Original Summary:")
-                st.write(paper.summary)
 
-                summary = summarise_blurb(paper.summary, api_key)
-                st.subheader("AI-Generated Summary")
-                st.write(summary)
+                # Display original and AI-generated summaries side by side
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.subheader("Original Summary")
+                    st.write(paper.summary)
+                with col2:
+                    summary = summarise_blurb(paper.summary, api_key)
+                    st.subheader("AI-Generated Summary")
+                    st.write(summary)
 
+                # User input for similarity percentage
+                st.subheader("Estimate Similarity")
+                user_similarity = st.slider("How similar are the summaries?", 0, 100, 50)
+
+                # Display AI-generated similarity percentage
                 new_blurb = write_new_blurb(summary, api_key)
-                st.subheader("AI-Generated Blurb")
-                st.write(new_blurb)
-
                 similarity = compare_blurbs(paper.summary, new_blurb, api_key)
-                percentage = round((similarity[0] * 100), 3)
-                st.subheader("Similarity")
-                st.write(f"{percentage}%")
+                ai_similarity = round((similarity[0] * 100), 3)
+                st.subheader("AI-Generated Similarity")
+                st.write(f"{ai_similarity}%")
+
+                # Display comparison between user input and AI-generated similarity
+                st.subheader("Comparison")
+                if user_similarity > ai_similarity:
+                    st.write(f"You estimated {user_similarity}% similarity, but the AI generated {ai_similarity}% similarity.")
+                elif user_similarity < ai_similarity:
+                    st.write(f"You estimated {user_similarity}% similarity, but the AI generated {ai_similarity}% similarity.")
+                else:
+                    st.write(f"You estimated {user_similarity}% similarity, which matches the AI generated {ai_similarity}% similarity.")
             except Exception as e:
                 st.error(f"An error occurred: {str(e)}")
 else:
