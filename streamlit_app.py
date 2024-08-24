@@ -68,21 +68,21 @@ if api_key:
                     user_similarity = st.slider("How similar are the summaries?", 0, 100, 50)
                     submit_similarity_button = st.form_submit_button("Submit")
 
-                if submit_similarity_button == True:
-                    # Display AI-generated similarity percentage
-                    similarity = compare_blurbs(paper.summary, new_blurb, api_key)
-                    ai_similarity = round((similarity[0] * 100), 3)
-                    st.subheader("AI-Generated Similarity")
-                    st.write(f"{ai_similarity}%")
+                    if submit_similarity_button == True:
+                        # Display AI-generated similarity percentage
+                        similarity = compare_blurbs(paper.summary, new_blurb, api_key)
+                        ai_similarity = round((similarity[0] * 100), 3)
+                        st.subheader("AI-Generated Similarity")
+                        st.write(f"{ai_similarity}%")
 
-                    # Display comparison between user input and AI-generated similarity
-                    st.subheader("Comparison")
-                    if user_similarity > ai_similarity:
-                        st.write(f"You estimated {user_similarity}% similarity, but the AI generated {ai_similarity}% similarity.")
-                    elif user_similarity < ai_similarity:
-                        st.write(f"You estimated {user_similarity}% similarity, but the AI generated {ai_similarity}% similarity.")
-                    else:
-                        st.write(f"You estimated {user_similarity}% similarity, which matches the AI generated {ai_similarity}% similarity.")
+                        # Display comparison between user input and AI-generated similarity
+                        st.subheader("Comparison")
+                        if user_similarity > ai_similarity:
+                            st.write(f"You estimated {user_similarity}% similarity, but the AI generated {ai_similarity}% similarity.")
+                        elif user_similarity < ai_similarity:
+                            st.write(f"You estimated {user_similarity}% similarity, but the AI generated {ai_similarity}% similarity.")
+                        else:
+                            st.write(f"You estimated {user_similarity}% similarity, which matches the AI generated {ai_similarity}% similarity.")
             except Exception as e:
                 st.error(f"An error occurred: {str(e)}")
 else:
