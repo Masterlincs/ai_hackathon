@@ -68,7 +68,7 @@ if api_key:
                     user_similarity = st.slider("How similar are the summaries?", 0, 100, 50)
                     submit_similarity_button = st.form_submit_button("Submit")
 
-                if submit_similarity_button:
+                if submit_similarity_button == True:
                     # Display AI-generated similarity percentage
                     similarity = compare_blurbs(paper.summary, new_blurb, api_key)
                     ai_similarity = round((similarity[0] * 100), 3)
