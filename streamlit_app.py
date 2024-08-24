@@ -6,18 +6,18 @@ st.set_page_config(page_title="Research Paper Processing App", layout="wide")
 # Custom CSS
 st.markdown("""
     <style>
- .main {
+.main {
         padding: 2rem;
         border-radius: 0.5rem;
         background-color: #f0f2f6;
     }
- .stTextInput > div > div > input {
+.stTextInput > div > div > input {
         background-color: #ffffff;
     }
- .stTextArea > div > div > textarea {
+.stTextArea > div > div > textarea {
         background-color: #ffffff;
     }
- .stButton > button {
+.stButton > button {
         width: 100%;
         background-color: #4CAF50;
         color: white;
@@ -36,6 +36,14 @@ with st.sidebar:
 
 # Main content
 if api_key:
+    # Initialize session state
+    if 'paper' not in st.session_state:
+        st.session_state.paper = None
+    if 'new_blurb' not in st.session_state:
+        st.session_state.new_blurb = None
+    if 'user_similarity' not in st.session_state:
+        st.session_state.user_similarity = None
+
     with st.form('research_paper'):
         st.subheader("Enter Paper Details")
         arxiv_id = st.text_input("Enter arXiv ID (e.g., 2308.08155):")
@@ -62,27 +70,34 @@ if api_key:
                     st.subheader("AI-Generated Blurb")
                     st.write(new_blurb)
 
+                # Store paper and new blurb in session state
+                st.session_state.paper = paper
+                st.session_state.new_blurb = new_blurb
+
                 # User input for similarity percentage
                 with st.form('similarity_form'):
                     st.subheader("Estimate Similarity")
                     user_similarity = st.slider("How similar are the summaries?", 0, 100, 50)
                     submit_similarity_button = st.form_submit_button("Submit")
 
-                    if submit_similarity_button == True:
-                        # Display AI-generated similarity percentage
-                        similarity = compare_blurbs(paper.summary, new_blurb, api_key)
-                        ai_similarity = round((similarity[0] * 100), 3)
-                        st.subheader("AI-Generated Similarity")
-                        st.write(f"{ai_similarity}%")
+                if submit_similarity_button:
+                    # Store user similarity in session state
+                    st.session_state.user_similarity = user_similarity
 
-                        # Display comparison between user input and AI-generated similarity
-                        st.subheader("Comparison")
-                        if user_similarity > ai_similarity:
-                            st.write(f"You estimated {user_similarity}% similarity, but the AI generated {ai_similarity}% similarity.")
-                        elif user_similarity < ai_similarity:
-                            st.write(f"You estimated {user_similarity}% similarity, but the AI generated {ai_similarity}% similarity.")
-                        else:
-                            st.write(f"You estimated {user_similarity}% similarity, which matches the AI generated {ai_similarity}% similarity.")
+                    # Display AI-generated similarity percentage
+                    similarity = compare_blurbs(st.session_state.paper.summary, st.session_state.new_blurb, api_key)
+                    ai_similarity = round((similarity[0] * 100), 3)
+                    st.subheader("AI-Generated Similarity")
+                    st.write(f"{ai_similarity}%")
+
+                    # Display comparison between user input and AI-generated similarity
+                    st.subheader("Comparison")
+                    if st.session_state.user_similarity > ai_similarity:
+                        st.write(f"You estimated {st.session_state.user_similarity}% similarity, but the AI generated {ai_similarity}% similarity.")
+                    elif st.session_state.user_similarity < ai_similarity:
+                        st.write(f"You estimated {st.session_state.user_similarity}% similarity, but the AI generated {ai_similarity}% similarity.")
+                    else:
+                        st.write(f"You estimated {st.session_state.user_similarity}% similarity, which matches the AI generated {ai_similarity}% similarity.")
             except Exception as e:
                 st.error(f"An error occurred: {str(e)}")
 else:
