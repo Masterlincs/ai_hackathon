@@ -218,7 +218,53 @@ if 'api_key' in st.session_state:
                 
                 if st.button("Play Again"):
                     st.session_state.stage = 'input'
+                    st.session_state.paper = None
+                    st.session_state.summaries = []
+                    st.session_state.correct_index = None
                     st.rerun()
+
+    elif page == "Text Input":
+        st.markdown('<h1 class="title">Text Input</h1>', unsafe_allow_html=True)
+        
+        if st.session_state.stage == 'input':
+            with st.form('text_input'):
+                st.subheader("Enter Text")
+                text_input = st.text_area("Enter any text:", height=200)
+                submit_button = st.form_submit_button("Process Text")
+
+            if submit_button and text_input:
+                with st.spinner("Processing..."):
+                    try:
+                        summary = summarise_blurb(text_input, st.session_state.api_key)
+                        new_blurb = write_new_blurb(summary, st.session_state.api_key)
+                        
+                        st.session_state.text_input = text_input
+                        st.session_state.new_blurb = new_blurb
+                        st.session_state.stage = 'display'
+                        st.rerun()
+                    except Exception as e:
+                        st.error(f"An error occurred: {str(e)}")
+
+        elif st.session_state.stage == 'display':
+            st.subheader("Text Details")
+            st.write("Original Text:")
+            st.write(st.session_state.text_input)
+
+            col1, col2 = st.columns(2)
+            with col1:
+                st.subheader("Original Blurb")
+                st.write(st.session_state.text_input)
+            with col2:
+                st.subheader("AI-Generated Blurb")
+                st.write(st.session_state.new_blurb)
+
+            st.subheader("AI-Generated Similarity")
+            similarity = compare_blurbs(st.session_state.text_input, st.session_state.new_blurb, st.session_state.api_key)
+            st.write(f"AI-generated similarity: {round((similarity[0] * 100), 3)}%")
+
+            if st.button("Process Another Text"):
+                st.session_state.stage = 'input'
+                st.rerun()
 
 else:
     st.warning("Please enter your Hugging Face API key in the sidebar to proceed.")
