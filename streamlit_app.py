@@ -231,15 +231,12 @@ elif page == "Random arXiv":
             st.write(st.session_state.random_summaries[1 - st.session_state.random_correct_index])
             
             if st.button("Play Again"):
-                # Resetting session state variables
                 st.session_state.random_stage = 'input'
-                st.session_state.random_id = None
-                st.session_state.random_paper = None
-                st.session_state.random_summaries = []
-                st.session_state.random_correct_index = None
+                for key in ['random_id', 'random_paper', 'random_summaries', 'random_correct_index']:
+                    if key in st.session_state:
+                        del st.session_state[key]
                 st.rerun()
 
-                
     elif page == "Sandbox":
         st.markdown('<h1 class="title">Text Input</h1>', unsafe_allow_html=True)
         
