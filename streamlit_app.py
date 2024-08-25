@@ -82,7 +82,7 @@ with st.sidebar:
             st.error("Invalid API key. Please try again.")
     
     st.header("Navigation")
-    page = st.radio("Select Page", ["arXiv Input", "Random arXiv Guessing Game, Sandbox"])
+    page = st.radio("Select Page", ["arXiv Input", "Random arXiv", "Sandbox"])
 
 # Main content
 if 'api_key' in st.session_state:
@@ -162,7 +162,7 @@ if 'api_key' in st.session_state:
                 st.session_state.stage = 'input'
                 st.rerun()
 
-    elif page == "Random arXiv Guessing Game":
+    elif page == "Random arXiv":
         st.markdown('<h1 class="title">Random arXiv Guessing Game</h1>', unsafe_allow_html=True)
         
         if st.session_state.stage == 'input':
