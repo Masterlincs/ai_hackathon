@@ -129,9 +129,9 @@ def fetch_random_valid_paper_details():
         if paper.fetch_details():
             # If a valid paper is found, display its details
             paper.display_details()
+            return random_arxiv_id
             break
         else:
             print(f"Invalid arXiv ID: {random_arxiv_id}, retrying...")
 
 
-print(fetch_random_valid_paper_details())
