@@ -97,7 +97,7 @@ def generate_random_arxiv_id():
     paper_number = random.randint(1, 9999)  # Allow up to 5 digits for realistic ID
     paper_number_str = str(paper_number).zfill(5)
     
-    arxiv_id = f"{year}{month_str}.{paper_number_str:03d}"
+    arxiv_id = f"{year}{month_str}.{paper_number_str}"
     return arxiv_id
 
 def fetch_random_valid_paper_details():
