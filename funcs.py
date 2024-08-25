@@ -44,15 +44,33 @@ class ArxivPaper:
         print(f"Summary: {self.summary}")
 
 
-def summarise_blurb(blurb, api_key):
+def summarize_blurb(blurb, api_key, max_retries=3):
     API_URL = "https://api-inference.huggingface.co/models/facebook/bart-large-cnn"
     headers = {"Authorization": f"Bearer {api_key}"}
     payload = {
         "inputs": blurb,
         "parameters": {"max_length": 500, "min_length": 50}
     }
-    response = requests.post(API_URL, headers=headers, json=payload)
-    return response.json()[0]['summary_text']
+    
+    for attempt in range(max_retries):
+        try:
+            response = requests.post(API_URL, headers=headers, json=payload)
+            response.raise_for_status()  # Raises an HTTPError for bad responses
+            
+            result = response.json()
+            if isinstance(result, list) and len(result) > 0:
+                return result[0]['summary_text']
+            else:
+                raise ValueError("Unexpected response format")
+        
+        except (requests.RequestException, ValueError) as e:
+            if attempt == max_retries - 1:
+                raise  # Re-raise the last exception if all retries are exhausted
+            print(f"Attempt {attempt + 1} failed. Retrying in 5 seconds...")
+            sleep(5)  # Wait for 5 seconds before retrying
+
+    # This line should never be reached due to the exception handling above
+    return "Failed to summarize the blurb after multiple attempts."
 
 def write_new_blurb(blurb_summary, api_key):
     API_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2"
