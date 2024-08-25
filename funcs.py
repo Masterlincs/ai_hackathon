@@ -1,6 +1,7 @@
 import requests
 import xml.etree.ElementTree as ET
 import random
+import time
 
 class ArxivPaper:
     def __init__(self, arxiv_id):
@@ -90,6 +91,7 @@ def is_valid_api_key(api_key: str) -> bool:
 previous_ids = set()
 
 def generate_random_arxiv_id():
+    random.seed(time.time())
     # Generate a random arXiv ID with realistic formatting
     year = random.randint(10,24)  # Choose a year (last two digits)
     month = random.randint(1, 12)
