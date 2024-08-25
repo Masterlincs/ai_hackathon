@@ -107,7 +107,6 @@ def generate_random_arxiv_id():
 def fetch_random_valid_paper_details():
     while True:
         random_arxiv_id = generate_random_arxiv_id()
-        generate_random_arxiv_id.clear
         if random_arxiv_id not in previous_ids:
             previous_ids.add(random_arxiv_id)
             paper = ArxivPaper(random_arxiv_id)
