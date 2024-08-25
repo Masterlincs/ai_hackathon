@@ -168,9 +168,9 @@ if 'api_key' in st.session_state:
         if st.session_state.stage == 'input':
             if st.button("Get Random arXiv Paper"):
                 with st.spinner("Fetching and processing random arXiv paper..."):
-                    random_arxiv_id = fetch_random_valid_paper_details()
-                    if random_arxiv_id:
-                        paper = ArxivPaper(random_arxiv_id)
+                    st.session_state.id = fetch_random_valid_paper_details()
+                    if st.session_state.id:
+                        paper = ArxivPaper(st.session_state.id)
                         if paper.fetch_details():
                             ai_summary = summarise_blurb(paper.summary, st.session_state.api_key)
                             new_blurb = write_new_blurb(ai_summary, st.session_state.api_key)
@@ -219,6 +219,7 @@ if 'api_key' in st.session_state:
                 if st.button("Play Again"):
                     # Resetting session state variables
                     st.session_state.stage = 'input'
+                    st.session_state.id = fetch_random_valid_paper_details()
                     st.session_state.paper = None
                     st.session_state.summaries = []
                     st.session_state.correct_index = None
