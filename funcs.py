@@ -89,11 +89,11 @@ def generate_random_arxiv_id():
     # Create a two-digit month string
     month_str = f"{month:02d}"
     
-    # Generate a random paper number (5 digits)
-    paper_number = random.randint(1, 99999)
+    # Generate a random paper number (4 digits)
+    paper_number = random.randint(1000, 9999)
     
     # Create the arXiv ID in the format "yymm.number"
-    arxiv_id = f"{str(year)[2:]}{month_str}.{paper_number:05d}"
+    arxiv_id = f"{str(year)[2:]}{month_str}.{paper_number:04d}"
     
     return arxiv_id
 
