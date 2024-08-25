@@ -44,7 +44,7 @@ class ArxivPaper:
         print(f"Summary: {self.summary}")
 
 
-def summarize_blurb(blurb, api_key, max_retries=3):
+def summarise_blurb(blurb, api_key, max_retries=3):
     API_URL = "https://api-inference.huggingface.co/models/facebook/bart-large-cnn"
     headers = {"Authorization": f"Bearer {api_key}"}
     payload = {
