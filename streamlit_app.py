@@ -246,8 +246,8 @@ if 'api_key' in st.session_state and st.session_state.api_key:
                 st.subheader("AI-Generated Summary")
                 st.write(st.session_state.random_summaries[1 - st.session_state.random_correct_index])
                 
-                if st.button("Play Again"):
-                    refresh_page()  # Refresh the page using JavaScript
+        if st.button("Play Again"):
+            refresh_page()  # Refresh the page using JavaScript
 
     elif st.session_state.page == "Sandbox":
         st.markdown('<h1 class="title">Text Input</h1>', unsafe_allow_html=True)
