@@ -16,7 +16,7 @@ class ArxivPaper:
             response = requests.get(base_url, params=params)
             response.raise_for_status()
         except requests.exceptions.RequestException as e:
-            print(f"Failed to fetch details. Error: {e}")
+            print(f"Failed to fetch details. Error: {str(e)}")
             return False
 
         root = ET.fromstring(response.content)
@@ -103,5 +103,5 @@ def fetch_random_valid_paper_details():
     while True:
         random_arxiv_id = generate_random_arxiv_id()
         paper = ArxivPaper(random_arxiv_id)
-        if paper.fetch_details():
+        if paper.fetch_details() is not False:
             return random_arxiv_id
