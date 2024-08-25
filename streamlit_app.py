@@ -173,9 +173,9 @@ if 'api_key' in st.session_state:
                         paper = ArxivPaper(random_arxiv_id)
                         if paper.fetch_details():
                             ai_summary = summarise_blurb(paper.summary, st.session_state.api_key)
-                            
+                            new_blurb = write_new_blurb(ai_summary, st.session_state.api_key)
                             st.session_state.paper = paper
-                            st.session_state.summaries = [paper.summary, ai_summary]
+                            st.session_state.summaries = [paper.summary, new_blurb]
                             random.shuffle(st.session_state.summaries)
                             st.session_state.correct_index = st.session_state.summaries.index(paper.summary)
                             st.session_state.stage = 'guess'
