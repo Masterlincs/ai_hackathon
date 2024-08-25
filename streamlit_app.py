@@ -183,7 +183,11 @@ if 'api_key' in st.session_state:
         if st.session_state.random_stage == 'input':
             if st.button("Get Random arXiv Paper"):
                 with st.spinner("Fetching and processing random arXiv paper..."):
-                    st.session_state.random_id = fetch_random_valid_paper_details()
+                    # Clear cached data related to fetch_random_valid_paper_details
+                    st.cache_data.clear()  # This line clears all cached data
+
+                    st.session_state.random_id = fetch_random_valid_paper_details()  # Fetch a new random paper ID
+
                     if st.session_state.random_id:
                         paper = ArxivPaper(st.session_state.random_id)
                         if paper.fetch_details():
@@ -239,6 +243,7 @@ if 'api_key' in st.session_state:
                     st.session_state.random_stage = 'input'
                     st.cache_data.clear()  # Clear the cache
                     st.rerun()  # Reset the stage to input and start over
+
 
     elif st.session_state.page == "Sandbox":
         st.markdown('<h1 class="title">Text Input</h1>', unsafe_allow_html=True)

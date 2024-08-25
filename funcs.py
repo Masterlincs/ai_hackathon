@@ -103,6 +103,7 @@ def generate_random_arxiv_id():
     arxiv_id = f"{year}{month_str}.{paper_number_str}"
     return arxiv_id
 
+@st.cache_data
 def fetch_random_valid_paper_details():
     while True:
         random_arxiv_id = generate_random_arxiv_id()
