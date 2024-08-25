@@ -67,7 +67,7 @@ def summarize_blurb(blurb, api_key, max_retries=3):
             if attempt == max_retries - 1:
                 raise  # Re-raise the last exception if all retries are exhausted
             print(f"Attempt {attempt + 1} failed. Retrying in 5 seconds...")
-            sleep(5)  # Wait for 5 seconds before retrying
+            time.sleep(5)  # Wait for 5 seconds before retrying
 
     # This line should never be reached due to the exception handling above
     return "Failed to summarize the blurb after multiple attempts."
