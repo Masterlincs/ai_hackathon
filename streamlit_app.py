@@ -99,6 +99,28 @@ with st.sidebar:
     page = st.radio("Select Page", ["arXiv Input", "Random arXiv", "Sandbox"])
     st.session_state.page = page
 
+# Define callback function to fetch and process a random paper
+def fetch_and_process_random_paper():
+    with st.spinner("Fetching and processing random arXiv paper..."):
+        # Clear the cache to ensure new data is fetched
+        fetch_random_valid_paper_details.clear()
+        st.session_state.random_id = fetch_random_valid_paper_details()
+        if st.session_state.random_id:
+            paper = ArxivPaper(st.session_state.random_id)
+            if paper.fetch_details():
+                ai_summary = summarise_blurb(paper.summary, st.session_state.api_key)
+                new_blurb = write_new_blurb(ai_summary, st.session_state.api_key)
+                st.session_state.random_paper = paper
+                st.session_state.random_summaries = [paper.summary, new_blurb]
+                random.shuffle(st.session_state.random_summaries)
+                st.session_state.random_correct_index = st.session_state.random_summaries.index(paper.summary)
+                st.session_state.random_stage = 'guess'
+            else:
+                st.error("Failed to fetch paper details. Please try again.")
+        else:
+            st.error("Failed to find a valid random arXiv paper. Please try again.")
+    st.rerun()
+
 # Main content
 if 'api_key' in st.session_state:
     if st.session_state.page == "arXiv Input":
@@ -182,27 +204,7 @@ if 'api_key' in st.session_state:
 
         if st.session_state.random_stage == 'input':
             if st.button("Get Random arXiv Paper"):
-                with st.spinner("Fetching and processing random arXiv paper..."):
-                    # Clear cached data related to fetch_random_valid_paper_details
-                    st.cache_data.clear()  # This line clears all cached data
-
-                    st.session_state.random_id = fetch_random_valid_paper_details()  # Fetch a new random paper ID
-
-                    if st.session_state.random_id:
-                        paper = ArxivPaper(st.session_state.random_id)
-                        if paper.fetch_details():
-                            ai_summary = summarise_blurb(paper.summary, st.session_state.api_key)
-                            new_blurb = write_new_blurb(ai_summary, st.session_state.api_key)
-                            st.session_state.random_paper = paper
-                            st.session_state.random_summaries = [paper.summary, new_blurb]
-                            random.shuffle(st.session_state.random_summaries)
-                            st.session_state.random_correct_index = st.session_state.random_summaries.index(paper.summary)
-                            st.session_state.random_stage = 'guess'
-                            st.rerun()
-                        else:
-                            st.error("Failed to fetch paper details. Please try again.")
-                    else:
-                        st.error("Failed to find a valid random arXiv paper. Please try again.")
+                fetch_and_process_random_paper()  # Use callback to fetch a new paper
 
         elif st.session_state.random_stage == 'guess':
             st.subheader("Random Paper Details")
@@ -241,9 +243,7 @@ if 'api_key' in st.session_state:
                         if key in st.session_state:
                             del st.session_state[key]
                     st.session_state.random_stage = 'input'
-                    st.cache_data.clear()  # Clear the cache
-                    st.rerun()  # Reset the stage to input and start over
-
+                    fetch_and_process_random_paper()  # Use callback to fetch a new paper
 
     elif st.session_state.page == "Sandbox":
         st.markdown('<h1 class="title">Text Input</h1>', unsafe_allow_html=True)
