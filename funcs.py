@@ -91,13 +91,13 @@ previous_ids = set()
 
 def generate_random_arxiv_id():
     # Generate a random arXiv ID with realistic formatting
-    year = random.randint(7,24)  # Choose a year (last two digits)
+    year = random.randint(10,24)  # Choose a year (last two digits)
     month = random.randint(1, 12)
     month_str = f"{month:02d}"
     paper_number = random.randint(1, 9999)  # Allow up to 5 digits for realistic ID
     paper_number_str = str(paper_number).zfill(5)
     
-    arxiv_id = f"{year.zfill(2)}{month_str}.{paper_number_str}"
+    arxiv_id = f"{year}{month_str}.{paper_number_str}"
     return arxiv_id
 
 def fetch_random_valid_paper_details():
