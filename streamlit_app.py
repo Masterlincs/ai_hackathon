@@ -57,6 +57,9 @@ st.markdown("""
 if 'page' not in st.session_state:
     st.session_state.page = 'arXiv Input'
 
+if 'i' not in st.session_state:
+    st.session_state.i = 0 
+
 # arXiv Input page
 if 'arxiv_stage' not in st.session_state:
     st.session_state.arxiv_stage = 'input'
@@ -180,12 +183,6 @@ if 'api_key' in st.session_state:
     elif st.session_state.page == "Random arXiv":
         st.markdown('<h1 class="title">Random arXiv Guessing Game</h1>', unsafe_allow_html=True)
 
-        if 'random_stage' not in st.session_state:
-            st.session_state.random_stage = 'input'
-
-        if 'i' not in st.session_state:
-            st.session_state.i = 0  # Initialize counter
-
         if st.session_state.random_stage == 'input':
             if st.button("Get Random arXiv Paper"):
                 with st.spinner("Fetching and processing random arXiv paper..."):
@@ -200,7 +197,8 @@ if 'api_key' in st.session_state:
                             random.shuffle(st.session_state.random_summaries)
                             st.session_state.random_correct_index = st.session_state.random_summaries.index(paper.summary)
                             st.session_state.random_stage = 'guess'
-                            st.rerun()
+                            st.session_state.i += 1  # Increment counter after fetching a new paper
+                            st.rerun()  # Rerun the app to refresh the display
                         else:
                             st.error("Failed to fetch paper details. Please try again.")
                     else:
@@ -223,7 +221,7 @@ if 'api_key' in st.session_state:
                 st.write(st.session_state.random_summaries[1])
 
             user_guess = st.radio("Which summary do you think is the original?", ["Summary A", "Summary B"])
-            
+
             if st.button("Submit Guess"):
                 user_guess_index = 0 if user_guess == "Summary A" else 1
                 if user_guess_index == st.session_state.random_correct_index:
@@ -238,13 +236,13 @@ if 'api_key' in st.session_state:
                 st.write(st.session_state.random_summaries[1 - st.session_state.random_correct_index])
                 
                 if st.button("Play Again"):
-                    st.session_state.i += 1
-                    # Reset all relevant session state variables and re-fetch a new paper
-                    for key in ['random_stage', 'random_id', 'random_paper', 'random_summaries', 'random_correct_index']:
+                    # Reset session state to input stage and increment the counter
+                    for key in ['random_id', 'random_paper', 'random_summaries', 'random_correct_index']:
                         if key in st.session_state:
                             del st.session_state[key]
+                    
                     st.session_state.random_stage = 'input'
-                    st.rerun()  # Reset the stage to input and start over
+                    st.rerun()  # Rerun the app to start over with a new paper
 
     elif st.session_state.page == "Sandbox":
         st.markdown('<h1 class="title">Text Input</h1>', unsafe_allow_html=True)
