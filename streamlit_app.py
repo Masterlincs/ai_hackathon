@@ -5,7 +5,7 @@ from funcs import ArxivPaper, summarise_blurb, write_new_blurb, compare_blurbs, 
 
 st.set_page_config(page_title="Research Paper Processing App", layout="wide")
 def refresh_page():
-    st.rerun(scope="fragment")
+    st.rerun()
 
 # Custom CSS for light and dark mode
 st.markdown("""
