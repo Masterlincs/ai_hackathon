@@ -1,11 +1,11 @@
 import streamlit as st
 import random
 from funcs import ArxivPaper, summarise_blurb, write_new_blurb, compare_blurbs, is_valid_api_key, fetch_random_valid_paper_details
-from streamlit_js_eval import streamlit_js_eval
+
 
 st.set_page_config(page_title="Research Paper Processing App", layout="wide")
 def refresh_page():
-    streamlit_js_eval(js_expressions="parent.window.location.reload()")
+    st.rerun
 
 # Custom CSS for light and dark mode
 st.markdown("""
