@@ -9,35 +9,35 @@ class ArxivPaper:
         self.authors = []
         self.summary = None
 
-def fetch_details(self):
-    base_url = "http://export.arxiv.org/api/query"
-    params = {"id_list": self.arxiv_id}
-    try:
-        response = requests.get(base_url, params=params)
-        response.raise_for_status()
-    except requests.exceptions.RequestException as e:
-        print(f"Failed to fetch details. Error: {e}")
-        return False
+    def fetch_details(self):
+        base_url = "http://export.arxiv.org/api/query"
+        params = {"id_list": self.arxiv_id}
+        try:
+            response = requests.get(base_url, params=params)
+            response.raise_for_status()
+        except requests.exceptions.RequestException as e:
+            print(f"Failed to fetch details. Error: {e}")
+            return False
 
-    root = ET.fromstring(response.content)
-    entry = root.find('{http://www.w3.org/2005/Atom}entry')
+        root = ET.fromstring(response.content)
+        entry = root.find('{http://www.w3.org/2005/Atom}entry')
 
-    if entry is not None:
-        title_element = entry.find('{http://www.w3.org/2005/Atom}title')
-        if title_element is not None:
-            self.title = title_element.text.strip()
+        if entry is not None:
+            title_element = entry.find('{http://www.w3.org/2005/Atom}title')
+            if title_element is not None:
+                self.title = title_element.text.strip()
 
-        summary_element = entry.find('{http://www.w3.org/2005/Atom}summary')
-        if summary_element is not None:
-            self.summary = summary_element.text.strip()
+            summary_element = entry.find('{http://www.w3.org/2005/Atom}summary')
+            if summary_element is not None:
+                self.summary = summary_element.text.strip()
 
-        author_elements = entry.findall('{http://www.w3.org/2005/Atom}author')
-        for author_element in author_elements:
-            name_element = author_element.find('{http://www.w3.org/2005/Atom}name')
-            if name_element is not None:
-                self.authors.append(name_element.text.strip())
+            author_elements = entry.findall('{http://www.w3.org/2005/Atom}author')
+            for author_element in author_elements:
+                name_element = author_element.find('{http://www.w3.org/2005/Atom}name')
+                if name_element is not None:
+                    self.authors.append(name_element.text.strip())
 
-    return self.title is not None and self.summary is not None and len(self.authors) > 0
+        return self.title is not None and self.summary is not None and len(self.authors) > 0
 
 def summarise_blurb(blurb, api_key):
     API_URL = "https://api-inference.huggingface.co/models/facebook/bart-large-cnn"
