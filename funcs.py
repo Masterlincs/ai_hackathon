@@ -99,15 +99,12 @@ def generate_random_arxiv_id():
     return arxiv_id
 
 def fetch_random_valid_paper_details():
-    max_attempts = 5
-    for _ in range(max_attempts):
+    while True:
         random_arxiv_id = generate_random_arxiv_id()
         print(f"Generated arXiv ID: {random_arxiv_id}")
-        
+
         paper = ArxivPaper(random_arxiv_id)
-        paper.fetch_details()
-        
-        if paper.title and paper.summary and paper.authors:
+        if paper.fetch_details():
             return random_arxiv_id
-    
-    return None
+        else:
+            print(f"Failed to fetch details for arXiv ID {random_arxiv_id}. Trying again.")
