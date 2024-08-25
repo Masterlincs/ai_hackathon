@@ -1,8 +1,11 @@
 import streamlit as st
 import random
 from funcs import ArxivPaper, summarise_blurb, write_new_blurb, compare_blurbs, is_valid_api_key, fetch_random_valid_paper_details
+from streamlit_js_eval import streamlit_js_eval
 
 st.set_page_config(page_title="Research Paper Processing App", layout="wide")
+def refresh_page():
+    streamlit_js_eval(js_expressions="parent.window.location.reload()")
 
 # Custom CSS for light and dark mode
 st.markdown("""
@@ -57,6 +60,9 @@ st.markdown("""
 if 'page' not in st.session_state:
     st.session_state.page = 'arXiv Input'
 
+if 'api_key' not in st.session_state:
+    st.session_state.api_key = ""
+
 # arXiv Input page
 if 'arxiv_stage' not in st.session_state:
     st.session_state.arxiv_stage = 'input'
@@ -86,17 +92,17 @@ if 'sandbox_new_blurb' not in st.session_state:
 # Sidebar for API key input and page selection
 with st.sidebar:
     st.header("Configuration")
-    api_key = st.text_input("Enter your Hugging Face API key:", type="password")
+    api_key_input = st.text_input("Enter your Hugging Face API key:", type="password", value=st.session_state.api_key)
     
     if st.button("Validate API Key"):
-        if is_valid_api_key(api_key):
+        if is_valid_api_key(api_key_input):
             st.success("API key is valid!")
-            st.session_state.api_key = api_key
+            st.session_state.api_key = api_key_input
         else:
             st.error("Invalid API key. Please try again.")
     
     st.header("Navigation")
-    page = st.radio("Select Page", ["arXiv Input", "Random arXiv", "Sandbox"])
+    page = st.radio("Select Page", ["arXiv Input", "Random arXiv", "Sandbox"], index=["arXiv Input", "Random arXiv", "Sandbox"].index(st.session_state.page))
     st.session_state.page = page
 
 # Define callback function to fetch and process a random paper
@@ -122,7 +128,7 @@ def fetch_and_process_random_paper():
     st.rerun()
 
 # Main content
-if 'api_key' in st.session_state:
+if 'api_key' in st.session_state and st.session_state.api_key:
     if st.session_state.page == "arXiv Input":
         st.markdown('<h1 class="title">arXiv Paper Processing</h1>', unsafe_allow_html=True)
         if st.session_state.arxiv_stage == 'input':
@@ -202,6 +208,9 @@ if 'api_key' in st.session_state:
     elif st.session_state.page == "Random arXiv":
         st.markdown('<h1 class="title">Random arXiv Guessing Game</h1>', unsafe_allow_html=True)
 
+        if 'random_stage' not in st.session_state:
+            st.session_state.random_stage = 'input'
+
         if st.session_state.random_stage == 'input':
             if st.button("Get Random arXiv Paper"):
                 fetch_and_process_random_paper()  # Use callback to fetch a new paper
@@ -238,12 +247,7 @@ if 'api_key' in st.session_state:
                 st.write(st.session_state.random_summaries[1 - st.session_state.random_correct_index])
                 
                 if st.button("Play Again"):
-                    # Reset all relevant session state variables and re-fetch a new paper
-                    for key in ['random_stage', 'random_id', 'random_paper', 'random_summaries', 'random_correct_index']:
-                        if key in st.session_state:
-                            del st.session_state[key]
-                    st.session_state.random_stage = 'input'
-                    fetch_and_process_random_paper()  # Use callback to fetch a new paper
+                    refresh_page()  # Refresh the page using JavaScript
 
     elif st.session_state.page == "Sandbox":
         st.markdown('<h1 class="title">Text Input</h1>', unsafe_allow_html=True)
