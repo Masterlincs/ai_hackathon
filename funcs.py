@@ -71,7 +71,7 @@ def write_new_blurb(blurb_summary, api_key):
     headers = {"Authorization": f"Bearer {api_key}"}
     payload = {
         "inputs": blurb_summary,
-        "parameters": {"max_length": len(blurb_summary)+100, "num_beams": 5, "min_length":len(blurb_summary)-100}
+        "parameters": {"max_length": len(blurb_summary)+150, "num_beams": 5, "min_length":len(blurb_summary)-50}
     }
     response = requests.post(API_URL, headers=headers, json=payload)
     return response.json()[0]['generated_text']
@@ -100,9 +100,10 @@ def is_valid_api_key(api_key: str) -> bool:
     else:
         return False
 
+previous_ids = set()
+
 def generate_random_arxiv_id():
     # Generate a random year and month
-    year = random.randint(2007, 2024)  # Adjust as per the arXiv starting year
     month = random.randint(1, 12)
     
     # Create a two-digit month string
@@ -114,7 +115,12 @@ def generate_random_arxiv_id():
     # Create the arXiv ID in the format "yymm.number"
     arxiv_id = f"23{month_str}.{paper_number:03d}"
     
-    return arxiv_id
+    if arxiv_id in previous_ids:
+        new_id = generate_random_arxiv_id()
+        return new_id
+    else:
+        previous_ids.add(arxiv_id)
+        return arxiv_id
 
 def fetch_random_valid_paper_details():
     while True:
