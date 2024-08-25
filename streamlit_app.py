@@ -183,10 +183,13 @@ if 'api_key' in st.session_state:
         if 'random_stage' not in st.session_state:
             st.session_state.random_stage = 'input'
 
+        if 'i' not in st.session_state:
+            st.session_state.i = 0  # Initialize counter
+
         if st.session_state.random_stage == 'input':
             if st.button("Get Random arXiv Paper"):
                 with st.spinner("Fetching and processing random arXiv paper..."):
-                    st.session_state.random_id = fetch_random_valid_paper_details()
+                    st.session_state.random_id = fetch_random_valid_paper_details(st.session_state.i)
                     if st.session_state.random_id:
                         paper = ArxivPaper(st.session_state.random_id)
                         if paper.fetch_details():
@@ -235,6 +238,7 @@ if 'api_key' in st.session_state:
                 st.write(st.session_state.random_summaries[1 - st.session_state.random_correct_index])
                 
                 if st.button("Play Again"):
+                    st.session_state.i += 1
                     # Reset all relevant session state variables and re-fetch a new paper
                     for key in ['random_stage', 'random_id', 'random_paper', 'random_summaries', 'random_correct_index']:
                         if key in st.session_state:
