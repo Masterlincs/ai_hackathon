@@ -187,6 +187,7 @@ if 'api_key' in st.session_state:
         if st.session_state.random_stage == 'input':
             if st.button("Get Random arXiv Paper"):
                 with st.spinner("Fetching and processing random arXiv paper..."):
+                    fetch_random_valid_paper_details.clear
                     st.session_state.random_id = fetch_random_valid_paper_details()
                     if st.session_state.random_id:
                         paper = ArxivPaper(st.session_state.random_id)
@@ -241,6 +242,7 @@ if 'api_key' in st.session_state:
                         if key in st.session_state:
                             del st.session_state[key]
                     st.session_state.random_stage = 'input'
+                    fetch_random_valid_paper_details.clear
                     st.rerun()  # Reset the stage to input and start over
 
     elif st.session_state.page == "Sandbox":
