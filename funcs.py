@@ -1,5 +1,6 @@
 import requests
 import xml.etree.ElementTree as ET
+import random
 
 class ArxivPaper:
     def __init__(self, arxiv_id):
@@ -80,3 +81,33 @@ def is_valid_api_key(api_key: str) -> bool:
     else:
         return False
 
+def generate_random_arxiv_id():
+    # Generate a random year and month
+    year = random.randint(1991, 2024)  # Adjust as per the arXiv starting year
+    month = random.randint(1, 12)
+    
+    # Create a two-digit month string
+    month_str = f"{month:02d}"
+    
+    # Generate a random paper number (5 digits)
+    paper_number = random.randint(1, 99999)
+    
+    # Create the arXiv ID in the format "yymm.number"
+    arxiv_id = f"{str(year)[2:]}{month_str}.{paper_number:05d}"
+    
+    return arxiv_id
+
+def fetch_random_valid_paper_details():
+    while True:
+        # Generate a random arXiv ID
+        random_arxiv_id = generate_random_arxiv_id()
+        print(f"Generated arXiv ID: {random_arxiv_id}")
+        
+        # Create an ArxivPaper instance
+        paper = ArxivPaper(random_arxiv_id)
+        
+        # Fetch details from arXiv
+        if paper.fetch_details():
+            return random_arxiv_id
+        else:
+            return None
