@@ -9,33 +9,34 @@ class ArxivPaper:
         self.authors = []
         self.summary = None
 
-    def fetch_details(self):
-        base_url = "http://export.arxiv.org/api/query"
-        params = {"id_list": self.arxiv_id}
-        response = requests.get(base_url, params=params)
+def fetch_details(self):
+    base_url = "http://export.arxiv.org/api/query"
+    params = {"id_list": self.arxiv_id}
+    response = requests.get(base_url, params=params)
+    
+    if response.status_code == 200:
+        root = ET.fromstring(response.content)
+        entry = root.find('{http://www.w3.org/2005/Atom}entry')
         
-        if response.status_code == 200:
-            root = ET.fromstring(response.content)
-            entry = root.find('{http://www.w3.org/2005/Atom}entry')
+        if entry is not None:
+            title_element = entry.find('{http://www.w3.org/2005/Atom}title')
+            if title_element is not None:
+                self.title = title_element.text.strip()
             
-            if entry is not None:
-                title_element = entry.find('{http://www.w3.org/2005/Atom}title')
-                if title_element is not None:
-                    self.title = title_element.text.strip()
-                
-                summary_element = entry.find('{http://www.w3.org/2005/Atom}summary')
-                if summary_element is not None:
-                    self.summary = summary_element.text.strip()
-                
-                author_elements = entry.findall('{http://www.w3.org/2005/Atom}author')
-                for author_element in author_elements:
-                    name_element = author_element.find('{http://www.w3.org/2005/Atom}name')
-                    if name_element is not None:
-                        self.authors.append(name_element.text.strip())
-            else:
-                print("No entry found for the given arXiv ID.")
-        else:
-            print(f"Failed to fetch details. HTTP Status Code: {response.status_code}")
+            summary_element = entry.find('{http://www.w3.org/2005/Atom}summary')
+            if summary_element is not None:
+                self.summary = summary_element.text.strip()
+            
+            author_elements = entry.findall('{http://www.w3.org/2005/Atom}author')
+            for author_element in author_elements:
+                name_element = author_element.find('{http://www.w3.org/2005/Atom}name')
+                if name_element is not None:
+                    self.authors.append(name_element.text.strip())
+        
+        return self.title is not None and self.summary is not None and len(self.authors) > 0
+    else:
+        print(f"Failed to fetch details. HTTP Status Code: {response.status_code}")
+        return False
 
 def summarise_blurb(blurb, api_key):
     API_URL = "https://api-inference.huggingface.co/models/facebook/bart-large-cnn"
@@ -98,16 +99,15 @@ def generate_random_arxiv_id():
     return arxiv_id
 
 def fetch_random_valid_paper_details():
-    while True:
-        # Generate a random arXiv ID
+    max_attempts = 5
+    for _ in range(max_attempts):
         random_arxiv_id = generate_random_arxiv_id()
         print(f"Generated arXiv ID: {random_arxiv_id}")
         
-        # Create an ArxivPaper instance
         paper = ArxivPaper(random_arxiv_id)
+        paper.fetch_details()
         
-        # Fetch details from arXiv
-        if paper.fetch_details():
+        if paper.title and paper.summary and paper.authors:
             return random_arxiv_id
-        else:
-            return None
+    
+    return None

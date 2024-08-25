@@ -171,17 +171,19 @@ if 'api_key' in st.session_state:
                     random_arxiv_id = fetch_random_valid_paper_details()
                     if random_arxiv_id:
                         paper = ArxivPaper(random_arxiv_id)
-                        paper.fetch_details()
-                        ai_summary = summarise_blurb(paper.summary, st.session_state.api_key)
-                        
-                        st.session_state.paper = paper
-                        st.session_state.summaries = [paper.summary, ai_summary]
-                        random.shuffle(st.session_state.summaries)
-                        st.session_state.correct_index = st.session_state.summaries.index(paper.summary)
-                        st.session_state.stage = 'guess'
-                        st.rerun()
+                        if paper.fetch_details():
+                            ai_summary = summarise_blurb(paper.summary, st.session_state.api_key)
+                            
+                            st.session_state.paper = paper
+                            st.session_state.summaries = [paper.summary, ai_summary]
+                            random.shuffle(st.session_state.summaries)
+                            st.session_state.correct_index = st.session_state.summaries.index(paper.summary)
+                            st.session_state.stage = 'guess'
+                            st.rerun()
+                        else:
+                            st.error("Failed to fetch paper details. Please try again.")
                     else:
-                        st.error("Failed to fetch a random arXiv paper. Please try again.")
+                        st.error("Failed to find a valid random arXiv paper. Please try again.")
 
         elif st.session_state.stage == 'guess':
             st.subheader("Random Paper Details")
