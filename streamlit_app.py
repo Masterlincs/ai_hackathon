@@ -97,10 +97,11 @@ with st.sidebar:
     
     st.header("Navigation")
     page = st.radio("Select Page", ["arXiv Input", "Random arXiv", "Sandbox"])
+    st.session_state.page = page
 
 # Main content
 if 'api_key' in st.session_state:
-    if page == "arXiv Input":
+    if st.session_state.page == "arXiv Input":
         st.markdown('<h1 class="title">arXiv Paper Processing</h1>', unsafe_allow_html=True)
         if st.session_state.arxiv_stage == 'input':
             with st.form('research_paper'):
@@ -176,68 +177,68 @@ if 'api_key' in st.session_state:
                 st.session_state.arxiv_stage = 'input'
                 st.rerun()
 
-elif page == "Random arXiv":
-    st.markdown('<h1 class="title">Random arXiv Guessing Game</h1>', unsafe_allow_html=True)
+    elif st.session_state.page == "Random arXiv":
+        st.markdown('<h1 class="title">Random arXiv Guessing Game</h1>', unsafe_allow_html=True)
 
-    if st.session_state.random_stage == 'input':
-        if st.button("Get Random arXiv Paper"):
-            with st.spinner("Fetching and processing random arXiv paper..."):
-                st.session_state.random_id = fetch_random_valid_paper_details()
-                if st.session_state.random_id:
-                    paper = ArxivPaper(st.session_state.random_id)
-                    if paper.fetch_details():
-                        ai_summary = summarise_blurb(paper.summary, st.session_state.api_key)
-                        new_blurb = write_new_blurb(ai_summary, st.session_state.api_key)
-                        st.session_state.random_paper = paper
-                        st.session_state.random_summaries = [paper.summary, new_blurb]
-                        random.shuffle(st.session_state.random_summaries)
-                        st.session_state.random_correct_index = st.session_state.random_summaries.index(paper.summary)
-                        st.session_state.random_stage = 'guess'
-                        st.rerun()
+        if st.session_state.random_stage == 'input':
+            if st.button("Get Random arXiv Paper"):
+                with st.spinner("Fetching and processing random arXiv paper..."):
+                    st.session_state.random_id = fetch_random_valid_paper_details()
+                    if st.session_state.random_id:
+                        paper = ArxivPaper(st.session_state.random_id)
+                        if paper.fetch_details():
+                            ai_summary = summarise_blurb(paper.summary, st.session_state.api_key)
+                            new_blurb = write_new_blurb(ai_summary, st.session_state.api_key)
+                            st.session_state.random_paper = paper
+                            st.session_state.random_summaries = [paper.summary, new_blurb]
+                            random.shuffle(st.session_state.random_summaries)
+                            st.session_state.random_correct_index = st.session_state.random_summaries.index(paper.summary)
+                            st.session_state.random_stage = 'guess'
+                            st.rerun()
+                        else:
+                            st.error("Failed to fetch paper details. Please try again.")
                     else:
-                        st.error("Failed to fetch paper details. Please try again.")
+                        st.error("Failed to find a valid random arXiv paper. Please try again.")
+
+        elif st.session_state.random_stage == 'guess':
+            st.subheader("Random Paper Details")
+            st.write(f"Title: {st.session_state.random_paper.title}")
+            st.write(f"Authors: {', '.join(st.session_state.random_paper.authors)}")
+
+            st.subheader("Guess the Original Summary")
+            st.write("Below are two summaries. One is the original arXiv summary, and the other is AI-generated. Can you guess which one is the original?")
+
+            col1, col2 = st.columns(2)
+            with col1:
+                st.subheader("Summary A")
+                st.write(st.session_state.random_summaries[0])
+            with col2:
+                st.subheader("Summary B")
+                st.write(st.session_state.random_summaries[1])
+
+            user_guess = st.radio("Which summary do you think is the original?", ["Summary A", "Summary B"])
+            
+            if st.button("Submit Guess"):
+                user_guess_index = 0 if user_guess == "Summary A" else 1
+                if user_guess_index == st.session_state.random_correct_index:
+                    st.success("Correct! You guessed the original summary.")
                 else:
-                    st.error("Failed to find a valid random arXiv paper. Please try again.")
+                    st.error("Incorrect. The other summary was the original.")
+                
+                st.subheader("Original Summary")
+                st.write(st.session_state.random_paper.summary)
+                
+                st.subheader("AI-Generated Summary")
+                st.write(st.session_state.random_summaries[1 - st.session_state.random_correct_index])
+                
+                if st.button("Play Again"):
+                    st.session_state.random_stage = 'input'
+                    for key in ['random_id', 'random_paper', 'random_summaries', 'random_correct_index']:
+                        if key in st.session_state:
+                            del st.session_state[key]
+                    st.rerun()
 
-    elif st.session_state.random_stage == 'guess':
-        st.subheader("Random Paper Details")
-        st.write(f"Title: {st.session_state.random_paper.title}")
-        st.write(f"Authors: {', '.join(st.session_state.random_paper.authors)}")
-
-        st.subheader("Guess the Original Summary")
-        st.write("Below are two summaries. One is the original arXiv summary, and the other is AI-generated. Can you guess which one is the original?")
-
-        col1, col2 = st.columns(2)
-        with col1:
-            st.subheader("Summary A")
-            st.write(st.session_state.random_summaries[0])
-        with col2:
-            st.subheader("Summary B")
-            st.write(st.session_state.random_summaries[1])
-
-        user_guess = st.radio("Which summary do you think is the original?", ["Summary A", "Summary B"])
-        
-        if st.button("Submit Guess"):
-            user_guess_index = 0 if user_guess == "Summary A" else 1
-            if user_guess_index == st.session_state.random_correct_index:
-                st.success("Correct! You guessed the original summary.")
-            else:
-                st.error("Incorrect. The other summary was the original.")
-            
-            st.subheader("Original Summary")
-            st.write(st.session_state.random_paper.summary)
-            
-            st.subheader("AI-Generated Summary")
-            st.write(st.session_state.random_summaries[1 - st.session_state.random_correct_index])
-            
-            if st.button("Play Again"):
-                st.session_state.random_stage = 'input'
-                for key in ['random_id', 'random_paper', 'random_summaries', 'random_correct_index']:
-                    if key in st.session_state:
-                        del st.session_state[key]
-                st.rerun()
-
-    elif page == "Sandbox":
+    elif st.session_state.page == "Sandbox":
         st.markdown('<h1 class="title">Text Input</h1>', unsafe_allow_html=True)
         
         if st.session_state.sandbox_stage == 'input':
