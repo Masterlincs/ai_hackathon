@@ -1,32 +1,61 @@
 import streamlit as st
-from funcs import ArxivPaper, summarise_blurb, write_new_blurb, compare_blurbs
+from funcs import ArxivPaper, summarise_blurb, write_new_blurb, compare_blurbs, is_valid_api_key
 
 st.set_page_config(page_title="Research Paper Processing App", layout="wide")
-
-# Custom CSS
+check = False
+# Custom CSS for light and dark mode
 st.markdown("""
     <style>
-    .main {
+    
+
+    /* Light mode styles */
+    @media (prefers-color-scheme: light) {
+        .title {
+            color: #000000; /* Black text for the title in light mode */
+        }
+        .warning {
+            color: #FF0000; /* Red text for warning in light mode */
+        }
+        .main {
         padding: 2rem;
         border-radius: 0.5rem;
         background-color: #f0f2f6;
+        }
     }
+
+    /* Dark mode styles */
+    @media (prefers-color-scheme: dark) {
+        .title {
+            color: #ffffff; /* White text for the title in dark mode */
+        }
+        .warning {
+            color: #FFA07A; /* Light salmon text for warning in dark mode */
+        }
+        .main {
+        padding: 2rem;
+        border-radius: 0.5rem;
+        background-color: #050505;
+        }
+    }
+
+    /* Styles for input fields and buttons */
     .stTextInput > div > div > input {
-        background-color: #ffffff;
+        background-color: var(--background-secondary);
+        color: var(--text-color);
     }
     .stTextArea > div > div > textarea {
-        background-color: #ffffff;
+        background-color: var(--background-secondary);
+        color: var(--text-color);
     }
     .stButton > button {
-        width: 100%;
         background-color: #4CAF50;
         color: white;
-        font-weight: bold;
     }
     </style>
     """, unsafe_allow_html=True)
 
-st.title('Research Paper Processing App')
+# Title with custom class
+st.markdown('<h1 class="title">Research Paper Processing App</h1>', unsafe_allow_html=True)
 
 # Initialize session state
 if 'paper' not in st.session_state:
@@ -44,10 +73,17 @@ if 'stage' not in st.session_state:
 with st.sidebar:
     st.header("Configuration")
     api_key = st.text_input("Enter your Hugging Face API key:", type="password")
-    st.info("Your API key is required to use the Hugging Face models.")
+    
+    if st.button("Validate API Key"):
+        if is_valid_api_key(api_key):
+            st.success("API key is valid!")
+            st.session_state.api_key = api_key
+            check = True
+        else:
+            st.error("Invalid API key. Please try again.")
 
 # Main content
-if api_key:
+if check == True:
     if st.session_state.stage == 'input':
         with st.form('research_paper'):
             st.subheader("Enter Paper Details")

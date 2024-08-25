@@ -67,3 +67,16 @@ def compare_blurbs(blurb, ai_blurb, api_key):
     }
     response = requests.post(API_URL, headers=headers, json=payload)
     return response.json()
+
+def is_valid_api_key(api_key: str) -> bool:
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+    }
+    response = requests.get("https://huggingface.co/api/whoami-v2", headers=headers)
+    
+    # If the status code is 200, the API key is valid
+    if response.status_code == 200:
+        return True
+    else:
+        return False
+
