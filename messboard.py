@@ -55,51 +55,6 @@ class ArxivPaper:
         print("Authors: ", ", ".join(self.authors))
         print(f"Summary: {self.summary}")
 
-
-def summarise_blurb(blurb, api_key):
-    API_URL = "https://api-inference.huggingface.co/models/facebook/bart-large-cnn"
-    headers = {"Authorization": f"Bearer {api_key}"}
-    payload = {
-        "inputs": blurb,
-        "parameters": {"max_length": 500, "min_length": 50}
-    }
-    response = requests.post(API_URL, headers=headers, json=payload)
-    return response.json()[0]['summary_text']
-
-def write_new_blurb(blurb_summary, api_key):
-    API_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2"
-    headers = {"Authorization": f"Bearer {api_key}"}
-    payload = {
-        "inputs": blurb_summary,
-        "parameters": {"max_length": 500, "num_beams": 5}
-    }
-    response = requests.post(API_URL, headers=headers, json=payload)
-    return response.json()[0]['generated_text']
-
-def compare_blurbs(blurb, ai_blurb, api_key):
-    API_URL = "https://api-inference.huggingface.co/models/sentence-transformers/all-MiniLM-L6-v2"
-    headers = {"Authorization": f"Bearer {api_key}"}
-    payload = {
-        "inputs": {
-            "source_sentence": blurb,
-            "sentences": [ai_blurb]
-        }
-    }
-    response = requests.post(API_URL, headers=headers, json=payload)
-    return response.json()
-
-def is_valid_api_key(api_key: str) -> bool:
-    headers = {
-        "Authorization": f"Bearer {api_key}",
-    }
-    response = requests.get("https://huggingface.co/api/whoami-v2", headers=headers)
-    
-    # If the status code is 200, the API key is valid
-    if response.status_code == 200:
-        return True
-    else:
-        return False
-
 def generate_random_arxiv_id():
     # Generate a random year and month
     year = random.randint(2007, 2024)  # Adjust as per the arXiv starting year
@@ -132,3 +87,7 @@ def fetch_random_valid_paper_details():
             break
         else:
             print(f"Invalid arXiv ID: {random_arxiv_id}, retrying...")
+
+# Example usage
+if __name__ == "__main__":
+    fetch_random_valid_paper_details()
