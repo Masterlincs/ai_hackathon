@@ -3,6 +3,7 @@
 User inputs an arxiv id, AI condenses it into a few sentences, then sends it to another AI to try and recreate the original paper.
 
 Can be accessed at [Streamlit Link](https://ai-research--paper.streamlit.app/)
+  Sign up for an api key at [Hugging Face](https://huggingface.co/settings/tokens)
 
 Youtube showcase at [Youtube Link](https://youtu.be/mczw8HNT3DU)
 
