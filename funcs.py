@@ -47,15 +47,20 @@ class ArxivPaper:
 def summarise_blurb(blurb, api_key, max_retries=3):
     API_URL = "https://api-inference.huggingface.co/models/facebook/bart-large-cnn"
     headers = {"Authorization": f"Bearer {api_key}"}
-    payload = {
-        "inputs": blurb,
-        "parameters": {"max_length": 500, "min_length": 50}
-    }
+    payload = {"inputs": blurb, "parameters": {"max_length": 500, "min_length": 50}}
     
     for attempt in range(max_retries):
         try:
             response = requests.post(API_URL, headers=headers, json=payload)
-            response.raise_for_status()  # Raises an HTTPError for bad responses
+            
+            if response.status_code == 401:
+                raise ValueError("Invalid Hugging Face API key.")
+            elif response.status_code == 429:
+                print(f"Rate limit hit. Waiting 5 seconds...")
+                time.sleep(5)
+                continue
+            elif response.status_code >= 400:
+                raise requests.HTTPError(f"HTTP {response.status_code}: {response.text}")
             
             result = response.json()
             if isinstance(result, list) and len(result) > 0:
@@ -63,14 +68,14 @@ def summarise_blurb(blurb, api_key, max_retries=3):
             else:
                 raise ValueError("Unexpected response format")
         
-        except (requests.RequestException, ValueError) as e:
+        except requests.RequestException as e:
             if attempt == max_retries - 1:
-                raise  # Re-raise the last exception if all retries are exhausted
+                raise
             print(f"Attempt {attempt + 1} failed. Retrying in 5 seconds...")
-            time.sleep(5)  # Wait for 5 seconds before retrying
-
-    # This line should never be reached due to the exception handling above
+            time.sleep(5)
+    
     return "Failed to summarize the blurb after multiple attempts."
+
 
 def write_new_blurb(blurb_summary, api_key):
     API_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2"
